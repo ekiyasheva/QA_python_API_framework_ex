@@ -1,22 +1,12 @@
 import requests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
-from datetime import datetime
+
 class TestUserRegister(BaseCase):
-    def setup_method(self):
-        self.base_part = "learnqa"
-        domain = "example.com"
-        random_part = datetime.now().strftime("%m%d%Y%H%M%S")
-        self.email = f"{self.base_part}{random_part}@{domain}"
 
     def test_create_user_successfuly(self):
-        data = {
-            'password': '123',
-            'username': self.base_part,
-            'firstName': self.base_part,
-            'lastName': self.base_part,
-            'email': self.email
-        }
+        data = self.prepare_registration_data()
+
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
 
         #assert response.status_code == 200, f"Unexpected status code {response.status_code}"
@@ -30,13 +20,7 @@ class TestUserRegister(BaseCase):
     def test_create_user_with_exist_email(self):
         url_user_c = "https://playground.learnqa.ru/api/user/"
         email = 'vinkotov@example.com'
-        data = {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': email
-        }
+        data = self.prepare_registration_data(email)
 
         response = requests.post(url_user_c, data=data)
 
