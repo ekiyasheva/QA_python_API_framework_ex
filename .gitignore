@@ -2,5 +2,4 @@
 .pytest_cache
 __pycache__
 # Project exclude paths
-/Less1,2/
-/Less3/
+logs/*
