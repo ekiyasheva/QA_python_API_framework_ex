@@ -25,6 +25,9 @@ class Logger:
         data_to_add += f"Request cookies: {cookies}\n"
         data_to_add += "\n"
 
+        cls._write_log_to_file(data_to_add)
+
+
     @classmethod
     def add_response(cls, response: Response):
         cookies_ad_dict = dict(response.cookies)
