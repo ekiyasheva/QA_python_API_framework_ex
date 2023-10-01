@@ -19,3 +19,8 @@ class TestUserRegister(BaseCase):
         #print(response.content)
         assert response.status_code == 400, f"Unexpected status code {response.status_code}"
         assert response.content.decode("utf-8") == f"Users with email '{email}' already exists", f"Unexpected response content {response.content}"
+
+
+
+
+
