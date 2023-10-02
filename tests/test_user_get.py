@@ -8,8 +8,7 @@ class TestUserGet(BaseCase):
 
         #response = requests.get("https://playground.learnqa.ru/api/user/2")
         response = MyRequests.get("/user/2")
-
-        print(response.content)
+        #print(response.content)
 
         expected_fields = ["username"]
 
@@ -30,11 +29,7 @@ class TestUserGet(BaseCase):
         token = self.get_header(response1, "x-csrf-token")
         user_id_from_auth_method = self.get_json_value(response1, "user_id")
 
-        #response2 = requests.get(
-        #    f"https://playground.learnqa.ru/api/user/{user_id_from_auth_method}",
-        #    headers={"x-csrf-token": token},
-        #    cookies={"auth_sid": auth_sid}
-        #)
+        #response2 = requests.get(f"https://playground.learnqa.ru/api/user/{user_id_from_auth_method}", headers={"x-csrf-token": token}, cookies={"auth_sid": auth_sid})
         response2 = MyRequests.get(
             f"/user/{user_id_from_auth_method}",
             headers={"x-csrf-token": token},
@@ -42,8 +37,50 @@ class TestUserGet(BaseCase):
         )
 
         expected_fields1 = ["username", "email", "firstName", "lastName"]
-
         Assertions.assert_json_has_keys(response2, expected_fields1)
+
+    def test_get_user_details_another_user(self):
+        #index = 1
+        #list_id: list = []
+        #for index in range (1, 100):
+        #    response = MyRequests.get(f"/user/{index}")
+        #    print(f"check user id {index}: response {response.text}")
+
+        #    if response.text != "User not found":
+        #        print(f"FIND USER in user id {index}!: {response.json()['username']}")
+
+        #    index = index+1
+        #response_data: list = BaseCase.authorization(self, "vinkotov@example.com", "1234")
+        #print(response_data)
+
+        expected_key_login: list = [
+            ("id"),
+            ("username"),
+            ("email"),
+            ("firstName"),
+            ("lastName")
+        ]
+        response = BaseCase.authorization(self, "vinkotov@example.com", "1234")
+        Assertions.assert_json_has_keys(response, expected_key_login)
+
+        response2 = MyRequests.get("/user/2")
+        Assertions.assert_code_status(response2, 200)
+        Assertions.assert_json_has_keys(response2, ["username"])
+        Assertions.assert_json_has_not_key(response2,"id")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

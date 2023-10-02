@@ -4,6 +4,7 @@ import string
 
 from requests import Response
 from datetime import datetime
+from lib.my_requests import MyRequests
 
 
 class BaseCase:
@@ -43,6 +44,36 @@ class BaseCase:
     def random_string_t_len(self, str_size):
         chars = string.ascii_letters
         return ''.join(random.choice(chars) for x in range(str_size))
+
+    def authorization(self, email: str = None, password: str = None):
+        data = {}
+        if email is None and password is None:
+            data = {
+                'email': 'vinkotov@example.com',
+                'password': '1234'
+            }
+        elif email is not None and password is not None:
+            data = {
+                'email': email,
+                'password': password
+            }
+        else:
+            print("INVALID DATA: input email and password")
+
+        response1 = MyRequests.post("/user/login", data=data)
+
+        auth_sid = self.get_cookie(response1, "auth_sid")
+        token = self.get_header(response1, "x-csrf-token")
+        user_id_from_auth_method = self.get_json_value(response1, "user_id")
+
+        response2 = MyRequests.get(
+            f"/user/{user_id_from_auth_method}",
+            headers={"x-csrf-token": token},
+            cookies={"auth_sid": auth_sid}
+        )
+
+        return response2
+
 
 
 
