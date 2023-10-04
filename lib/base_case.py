@@ -30,10 +30,10 @@ class BaseCase:
             random_part = self.random_str_w_date()
             email = f"{base_part}{random_part}@{domain}"
         return {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
+            'password': self.random_string_t_len(8),
+            'username': self.random_string_t_len(15),
+            'firstName': self.random_string_t_len(10),
+            'lastName': self.random_string_t_len(10),
             'email': email
         }
 
