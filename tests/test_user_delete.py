@@ -1,10 +1,16 @@
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 from lib.my_requests import MyRequests
+import allure
 
 
+@allure.epic("Работа с пользователем")
+@allure.feature("Удаление пользователя")
+@allure.parent_suite("Тесты на удаление пользователя")
 class TestUserDelete(BaseCase):
 
+    @allure.title("Ошибка удаления - недопустимый пользователь")
+    @allure.description("Попытка удаления пользователя, не разрешенного к удалению. Проверка сообщения об ошибке.")
     def test_delete_user_impossible_to_remove(self):
         # PRECONDITION
         #== login
@@ -25,7 +31,8 @@ class TestUserDelete(BaseCase):
         #print(f"COOKIE LOG: {response_del.cookies.get('auth_sid')}")
         #print(f"HEADER LOG: {response_del.headers.get('x-csrf-token')}")
 
-
+    @allure.title("Успешное удаление пользователя")
+    @allure.description("Предварительное создаение пользователя, авторизация под ним и последующее удаление. Проверка факта удаления.")
     def test_delete_user(self):
         # PRECONDITION
         #== registration
@@ -74,8 +81,9 @@ class TestUserDelete(BaseCase):
         #print(f"COOKIE GET: {response_get_del.cookies.get('auth_sid')}")
         #print(f"HEADER GET: {response_get_del.headers.get('x-csrf-token')}")
 
-
-
+    @allure.title("Ошибка удаления другого пользователя - недопустимые права")
+    @allure.description("Предварительное создаение двух пользователей, авторизация под одним из них с последующим удалением второго. Проверка сообщения об ошибке.")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_another_user(self):
         # REGISTER USER - 1
         registry_data1 = self.prepare_registration_data()

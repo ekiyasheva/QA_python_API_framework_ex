@@ -1,9 +1,13 @@
 import pytest
+import allure
 
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 
+@allure.epic("Работа с пользователем")
+@allure.feature("Регистрация пользователя")
+@allure.parent_suite("Тесты на регистрацию пользователя")
 class TestUserRegister(BaseCase):
     exclude_params = [
         ("password"),
@@ -13,6 +17,8 @@ class TestUserRegister(BaseCase):
         ("email")
     ]
 
+    @allure.title("Успешное создание пользователя")
+    @allure.description("Создание пользователя. Проверка корректности ответа от сервера.")
     def test_create_user_successfuly(self):
         data = self.prepare_registration_data()
 
@@ -22,7 +28,8 @@ class TestUserRegister(BaseCase):
         #print(response.content)
 
 
-
+    @allure.title("Ошибка регистрации пользователя - емейл дубликат")
+    @allure.description("Попытка создать пользователя с уже существующим емейлом. Проверка сообщения об ошибке")
     def test_create_user_with_exist_email(self):
         data = self.prepare_registration_data('vinkotov@example.com')
         response = MyRequests.post("/user", data=data)
@@ -34,6 +41,8 @@ class TestUserRegister(BaseCase):
         #print(response.content)
 
 
+    @allure.title("Ошибка регистрации пользователя - неверный формат емейла")
+    @allure.description("Попытка создать пользователя с некорректным емейлом. Проверка сообщения об ошибке")
     def test_create_user_with_incorrect_email(self):
         data = self.prepare_registration_data(f"{self.random_str_w_date()}.example.com")
         response = MyRequests.post("/user", data=data)
@@ -47,6 +56,8 @@ class TestUserRegister(BaseCase):
 
 
     @pytest.mark.parametrize('condition', exclude_params)
+    @allure.title("Ошибка регистрации пользователя - нет обязательного параметра")
+    @allure.description("Попытка создать пользователя без одного из обязательных параметров. Проверка сообщения об ошибке")
     def test_create_user_without_parameters(self, condition):
         data_ext = self.prepare_registration_data()
         u_password = data_ext.get("password")
@@ -103,7 +114,8 @@ class TestUserRegister(BaseCase):
         #print(response.content)
         #print(response.text)
 
-
+    @allure.title("Ошибка регистрации пользователя - недопустимо короткое имя")
+    @allure.description("Попытка создать пользователя с именем из одной буквы. Проверка сообщения об ошибке")
     def test_create_user_short_username(self):
         u_username = self.random_string_t_len(1)
         data_ext = self.prepare_registration_data()
@@ -124,7 +136,8 @@ class TestUserRegister(BaseCase):
         # print(response.text)
         # print(response.content)
 
-
+    @allure.title("Ошибка регистрации пользователя - недопустимо длиное имя")
+    @allure.description("Попытка создать пользователя с именем из 251 буквы. Проверка сообщения об ошибке")
     def test_create_user_long_username(self):
         u_username = self.random_string_t_len(251)
         data_ext = self.prepare_registration_data()

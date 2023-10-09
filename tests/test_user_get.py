@@ -1,19 +1,16 @@
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+import allure
 
+
+@allure.epic("Работа с пользователем")
+@allure.feature("Получение информации о пользователе")
+@allure.parent_suite("Тесты на получение информации о пользователе")
 class TestUserGet(BaseCase):
 
-    def test_get_user_details_not_auth(self):
-        response = MyRequests.get("/user/2")
-        #print(response.content)
-
-        expected_fields = ["username"]
-        Assertions.assert_json_has_keys(response, expected_fields)
-        Assertions.assert_json_has_not_key(response, "email")
-        Assertions.assert_json_has_not_key(response, "firstName")
-        Assertions.assert_json_has_not_key(response, "lastName")
-
+    @allure.title("Запрос собственных данных")
+    @allure.description("Авторизация под пользователем и запрос своих данных. Проверка полученных данных")
     def test_get_user_details_auth_as_same_user(self):
         #PRECONDITION
         #== login
@@ -29,7 +26,20 @@ class TestUserGet(BaseCase):
         expected_fields1 = ["username", "email", "firstName", "lastName"]
         Assertions.assert_json_has_keys(response_get, expected_fields1)
 
+    @allure.title("Ограничение доступа к данным неавторизованным пользователем")
+    @allure.description("Запрос данных. Проверка ограничения полученных данных")
+    def test_get_user_details_not_auth(self):
+        response = MyRequests.get("/user/2")
+        # print(response.content)
 
+        expected_fields = ["username"]
+        Assertions.assert_json_has_keys(response, expected_fields)
+        Assertions.assert_json_has_not_key(response, "email")
+        Assertions.assert_json_has_not_key(response, "firstName")
+        Assertions.assert_json_has_not_key(response, "lastName")
+
+    @allure.title("Ограничение доступа к чужим данным неавторизованным пользователем")
+    @allure.description("Авторизация и запрос чужих данных. Проверка ограничения полученных данных")
     def test_get_user_details_another_user(self):
         #index = 1
         #list_id: list = []
