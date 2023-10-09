@@ -2,6 +2,7 @@ import json.decoder
 import random
 import string
 
+import requests.exceptions
 from requests import Response
 from datetime import datetime
 from lib.my_requests import MyRequests
@@ -23,6 +24,8 @@ class BaseCase:
         assert name in response_as_dict, f"Response JSON doesn't have key '{name}'"
         return response_as_dict[name]
 
+
+
     def prepare_registration_data(self, email=None):
         if email is None:
             base_part = "learnqa"
@@ -41,38 +44,40 @@ class BaseCase:
         random_str = datetime.now().strftime("%m%d%Y%H%M%S")
         return random_str
 
-    def random_string_t_len(self, str_size):
+    @staticmethod
+    def random_string_t_len(str_size: int):
         chars = string.ascii_letters
         return ''.join(random.choice(chars) for x in range(str_size))
 
-    def authorization(self, email: str = None, password: str = None):
-        data = {}
-        if email is None and password is None:
-            data = {
-                'email': 'vinkotov@example.com',
-                'password': '1234'
-            }
-        elif email is not None and password is not None:
-            data = {
-                'email': email,
-                'password': password
-            }
-        else:
-            print("INVALID DATA: input email and password")
 
-        response1 = MyRequests.post("/user/login", data=data)
+    def api_create_user(self):
+        registry_data = self.prepare_registration_data()
+        try:
+            response_reg = MyRequests.post("/user", data=registry_data)
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
 
-        auth_sid = self.get_cookie(response1, "auth_sid")
-        token = self.get_header(response1, "x-csrf-token")
-        user_id_from_auth_method = self.get_json_value(response1, "user_id")
+        return_data = {
+            "u_id": response_reg.json()["id"],
+            "u_email": registry_data.get("email"),
+            "u_password": registry_data.get("password")
+        }
 
-        response2 = MyRequests.get(
-            f"/user/{user_id_from_auth_method}",
-            headers={"x-csrf-token": token},
-            cookies={"auth_sid": auth_sid}
-        )
+        return return_data
 
-        return response2
+    def api_login_user(self, u_email: str, u_password: str):
+        try:
+            response_log = MyRequests.post("/user/login", data={"email": u_email, "password": u_password})
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
+        return_data = {
+            "u_user_id": response_log.json()["user_id"],
+            "u_cookie": response_log.cookies.get('auth_sid'),
+            "u_header": response_log.headers.get('x-csrf-token')
+        }
+
+        return return_data
+
 
 
 
